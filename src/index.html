@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config Generator (Advanced Sync)</title>
+    <!-- Link Font Poppins dari Google Fonts biar makin kece -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Icon untuk tombol Copy -->
+    <style>
+        /* Variabel CSS untuk warna dan ukuran biar gampang diatur */
+        :root {
+            --bg-color: #1a1a1a; /* Warna latar belakang gelap */
+            --card-bg: #2d2d2d; /* Warna latar belakang kartu/kontainer */
+            --text-color: #f0f0f0; /* Warna teks terang */
+            --primary-color: #4CAF50; /* Warna hijau utama */
+            --primary-dark: #388E3C; /* Warna hijau lebih gelap untuk hover */
+            --border-color: #444; /* Warna border */
+            --input-bg: #3c3c3c; /* Warna latar belakang input */
+            --accent-color: #FFD700; /* Warna aksen kuning keemasan */
+            --shadow-color: rgba(0, 0, 0, 0.4); /* Warna bayangan */
+            --error-color: #dc3545; /* Warna merah untuk error */
+        }
+
+        /* Styling dasar untuk body */
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Mengatur agar konten mulai dari atas */
+            min-height: 100vh; /* Memastikan body mengisi seluruh tinggi viewport */
+            box-sizing: border-box; /* Penting untuk padding */
+            overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+        }
+
+        /* Container utama aplikasi */
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto; /* Margin atas bawah 20px, auto untuk tengah */
+            padding: 25px;
+            background: var(--card-bg);
+            border-radius: 15px; /* Sudut lebih membulat */
+            box-shadow: 0 8px 25px var(--shadow-color); /* Bayangan lebih dalam */
+            box-sizing: border-box;
+        }
+
+        /* Styling untuk judul */
+        h2, h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* Styling untuk label */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--accent-color); /* Warna aksen untuk label */
+        }
+
+        /* Styling untuk input teks dan select box */
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px; /* Sudut membulat */
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3); /* Efek fokus */
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical; /* Hanya bisa di-resize vertikal */
+            min-height: 80px;
+        }
+
+        /* Styling untuk tombol */
+        button {
+            padding: 12px 22px;
+            margin: 5px 8px 5px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            color: #fff;
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px); /* Efek naik sedikit */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0); /* Kembali ke posisi semula saat diklik */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* Grup tombol untuk tata letak yang rapi */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap; /* Memungkinkan tombol melipat ke baris baru di layar kecil */
+            gap: 15px; /* Jarak antar tombol */
+            margin-top: 20px;
+            margin-bottom: 20px;
+            justify-content: flex-start; /* Rata kiri */
+        }
+
+        .button-group button {
+            flex-grow: 1; /* Memungkinkan tombol mengisi ruang yang tersedia */
+            min-width: 150px; /* Lebar minimum untuk tombol */
+        }
+
+        /* Styling untuk setiap field yang ditambahkan */
+        .field {
+            display: flex;
+            gap: 10px; /* Jarak antar elemen dalam field */
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* Memungkinkan elemen melipat di layar kecil */
+            background-color: #3a3a3a;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #555;
+        }
+
+        .field input, .field select {
+            margin-bottom: 0; /* Menghilangkan margin bawah default */
+            flex-grow: 1; /* Memungkinkan input dan select mengisi ruang */
+            min-width: 120px; /* Lebar minimum untuk input/select dalam field */
+        }
+
+        .field button {
+            margin: 0; /* Menghilangkan margin default tombol dalam field */
+            flex-shrink: 0; /* Mencegah tombol menyusut terlalu kecil */
+            padding: 8px 15px;
+        }
+
+        /* Styling untuk output JSON/Python */
+        pre {
+            background: var(--input-bg);
+            padding: 15px;
+            white-space: pre-wrap; /* Mempertahankan spasi dan melipat baris */
+            word-break: break-all; /* Memecah kata panjang */
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            max-height: 250px; /* Batasin tinggi */
+            overflow-y: auto; /* Bisa di-scroll jika kontennya panjang */
+            font-family: 'Fira Code', 'monospace'; /* Font monospace yang lebih bagus */
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #0f0; /* Warna hijau untuk kode */
+        }
+
+        /* Gaya untuk kontainer output */
+        .output-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* Gaya untuk tombol salin */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background-color: rgba(76, 175, 80, 0.7);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+        .copy-button:hover {
+            background-color: var(--primary-color);
+        }
+        .copy-button:active {
+            transform: scale(0.95);
+        }
+        .copy-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Gaya untuk pesan notifikasi "Disalin!" */
+        .copy-message {
+            position: absolute;
+            top: 36px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .copy-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Styling untuk modal (popup editor) */
+        #editorModal {
+            display: none; /* Sembunyikan secara default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Latar belakang gelap transparan */
+            z-index: 1000;
+            justify-content: center; /* Menggunakan flexbox untuk centering */
+            align-items: center;
+        }
+
+        #editorBox {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 800px; /* Lebar maksimum modal */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease-out; /* Animasi muncul */
+        }
+
+        #editorBox h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        #editorBox textarea {
+            width: 100%;
+            height: 350px; /* Tinggi textarea lebih besar */
+            background: var(--input-bg);
+            color: #0f0;
+            font-family: 'Fira Code', 'monospace';
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            resize: vertical; /* Hanya bisa di-resize vertikal */
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Animasi fade in */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--error-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none; /* Hidden by default */
+        }
+
+        /* Media Queries untuk Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px auto;
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column; /* Tombol jadi satu kolom di layar kecil */
+                gap: 10px;
+            }
+
+            .button-group button {
+                width: 100%;
+                margin: 0;
+            }
+
+            .field {
+                flex-direction: column; /* Elemen field jadi satu kolom */
+                align-items: stretch; /* Meregangkan elemen */
+                gap: 8px;
+            }
+
+            .field input, .field select, .field button {
+                width: 100%;
+                margin: 0;
+            }
+
+            #editorBox {
+                width: 95%;
+                padding: 20px;
+            }
+
+            #editorBox textarea {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h2, h3 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
+            input[type="text"], select, pre, #editorBox textarea {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Config Generator <span style="color: var(--accent-color); font-size: 0.8em;">(Advanced Sync)</span></h2>
+        <label for="url">URL:</label>
+        <input type="text" id="url" value="https://example.com/api">
+
+        <label for="method">Method:</label>
+        <select id="method">
+            <option value="form">Form</option>
+            <option value="json">JSON</option>
+        </select>
+
+        <h3>Fields:</h3>
+        <div id="fields"></div>
+        <button onclick="addField()">Tambah Field</button>
+        <button onclick="clearFields()" style="background-color: #dc3545;">Bersihkan Field</button>
+
+        <hr style="border: 0; height: 1px; background-color: var(--border-color); margin: 30px 0;">
+
+        <h3>✨ Saran Field dari GenAI ✨</h3>
+        <label for="dataDescription">Deskripsikan data yang ingin Anda proses:</label>
+        <textarea id="dataDescription" placeholder="Contoh: POST https://yn1blj.jdc654tp.biz.id/check.php pending
+
+Request Data
+
+email=6287814960299&password=ltc1qfaqc34539nr32u72xnrj7a0ww2wwu4un6g8wud&playid=20668979769&phone=6285291181791&level=21&login=Facebook
+
+Request Headers
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Accept: */*
+X-Requested-With: XMLHttpRequest."></textarea>
+        <button onclick="suggestFieldsWithGenAI()">✨ Sarankan Field</button>
+        <div class="loading-container" id="loadingContainer" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span>Memuat saran...</span>
+        </div>
+        <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+
+        <hr style="border: 0; height: 1px; background-color: var(--border-color); margin: 30px 0;">
+
+        <div class="button-group">
+            <button onclick="generateConfig()">Generate Config</button>
+        </div>
+
+        <h3>Output JSON:</h3>
+        <!-- Output JSON dengan tombol salin -->
+        <div class="output-container">
+            <pre id="outputJson"></pre>
+            <button class="copy-button" onclick="copyToClipboard('outputJson')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+            </button>
+            <span id="jsonCopyMessage" class="copy-message">Disalin!</span>
+        </div>
+
+        <h3>Output Python-ready:</h3>
+        <!-- Output Python dengan tombol salin -->
+        <div class="output-container">
+            <pre id="outputPy"></pre>
+            <button class="copy-button" onclick="copyToClipboard('outputPy')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+            </button>
+            <span id="pyCopyMessage" class="copy-message">Disalin!</span>
+        </div>
+    </div>
+
+    <!-- Modal untuk Custom Code -->
+    <div id="editorModal">
+        <div id="editorBox">
+            <h3>Edit Custom Generator</h3>
+            <textarea id="customCode" placeholder="Masukkan kode Python di sini..."></textarea><br>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button onclick="saveCustomCode()" style="background-color: var(--primary-color);">Save</button>
+                <button onclick="closeEditor()" style="background-color: #dc3545;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Objek generator bawaan
+        const generators = {
+            "email": "item['data_account']['email']",
+            "password": "item['data_account']['password']",
+            "login": "item['informasi_lainnya']['login']",
+            "playid": "str(random.randint(100000000, 9999999999))",
+            "phone": "'628' + str(abs(hash(item['data_account']['email'])) % 1000000000)",
+            "level": "str(random.randint(10, 100))",
+            "rank": "random.choice(['Bronze','Silver','Gold','Platinum','Diamond','Master','Grandmaster'])",
+            "userIGN": "item['data_account'].get('ign', 'No0b97' + str(random.randint(1000,9999)))",
+            "name": "random.choice(['Andi','Budi','Siti','Agus','Rina'])",
+            "age": "str(random.randint(10,60))"
+        };
+
+        let currentEditingField = null; // Menyimpan nama field yang sedang diedit
+
+        // Ganti URL ini dengan URL Cloudflare Workers yuww
+        const API_URL = 'https://gen-proxy.freefire3agust.workers.dev/';
+
+        /**
+         * Menambahkan field baru ke UI.
+         * @param {string} name - Nama field (opsional, default kosong).
+         * @param {string} type - Tipe generator (opsional, default 'email').
+         */
+        function addField(name = '', type = 'email') {
+            const div = document.createElement('div');
+            div.className = 'field';
+            let optionsHtml = Object.keys(generators).map(k => `<option value="${k}" ${k === type ? 'selected' : ''}>${k}</option>`).join('');
+            if (!generators[type] && type !== '') {
+                optionsHtml += `<option value="${type}" selected>Custom: ${type}</option>`;
+            }
+
+            div.innerHTML = `
+                <input type="text" placeholder="Field Name" value="${name}" oninput="generateConfig()">
+                <select onchange="updateCustomButtonCode(this); generateConfig()">
+                    ${optionsHtml}
+                </select>
+                <button onclick="openEditor(this.parentElement.querySelector('input').value, this.parentElement.querySelector('select').value)">Custom Code</button>
+                <button onclick="this.parentElement.remove(); generateConfig();" style="background-color: #dc3545;">Hapus</button>
+            `;
+            document.getElementById('fields').appendChild(div);
+            generateConfig(); // Panggil generateConfig setiap kali field ditambahkan/dihapus
+        }
+
+        /**
+         * Menghapus semua field dari UI.
+         */
+        function clearFields() {
+            document.getElementById('fields').innerHTML = '';
+            generateConfig();
+        }
+
+        /**
+         * Mengupdate kode yang ditampilkan di tombol "Custom Code" saat select box berubah.
+         * @param {HTMLSelectElement} selectElement - Elemen select yang berubah.
+         */
+        function updateCustomButtonCode(selectElement) {
+            const fieldNameInput = selectElement.parentElement.querySelector('input');
+            const selectedGeneratorType = selectElement.value;
+            const customCodeButton = selectElement.parentElement.querySelector('button:nth-of-type(1)');
+            
+            if (generators[selectedGeneratorType]) {
+                customCodeButton.onclick = () => openEditor(fieldNameInput.value, generators[selectedGeneratorType]);
+            } else {
+                customCodeButton.onclick = () => openEditor(fieldNameInput.value, generators[fieldNameInput.value] || '');
+            }
+        }
+
+        /**
+         * Membuka modal editor untuk custom code.
+         * @param {string} fieldName - Nama field yang akan diedit custom codenya.
+         * @param {string} currentCode - Kode generator saat ini untuk field tersebut.
+         */
+        function openEditor(fieldName, currentCode) {
+            currentEditingField = fieldName;
+            document.getElementById('customCode').value = currentCode || '';
+            document.getElementById('editorModal').style.display = 'flex';
+        }
+
+        /**
+         * Menutup modal editor.
+         */
+        function closeEditor() {
+            currentEditingField = null;
+            document.getElementById('editorModal').style.display = 'none';
+        }
+
+        /**
+         * Menyimpan custom code yang diedit.
+         */
+        function saveCustomCode() {
+            const code = document.getElementById('customCode').value.trim();
+            if (currentEditingField) {
+                generators[currentEditingField] = code;
+                
+                document.querySelectorAll('#fields .field').forEach(f => {
+                    const key = f.querySelector('input').value.trim();
+                    const select = f.querySelector('select');
+                    
+                    if (key === currentEditingField) {
+                        let optionExists = false;
+                        for (let i = 0; i < select.options.length; i++) {
+                            if (select.options[i].value === currentEditingField) {
+                                optionExists = true;
+                                break;
+                            }
+                        }
+                        if (!optionExists) {
+                            const newOption = document.createElement('option');
+                            newOption.value = currentEditingField;
+                            newOption.textContent = `Custom: ${currentEditingField}`;
+                            select.appendChild(newOption);
+                        }
+                        select.value = currentEditingField;
+                    }
+                    updateCustomButtonCode(select);
+                });
+                generateConfig();
+            } else {
+                console.warn("Tidak ada field yang sedang diedit.");
+            }
+            closeEditor();
+        }
+
+        /**
+         * Men-generate konfigurasi JSON dan Python-ready.
+         */
+        function generateConfig() {
+            const fieldElems = document.querySelectorAll('#fields .field');
+            let fields = {};
+            let currentGenerators = {};
+
+            fieldElems.forEach(f => {
+                const key = f.querySelector('input').value.trim();
+                const selectedGeneratorType = f.querySelector('select').value;
+
+                if (key) {
+                    fields[key] = selectedGeneratorType;
+                    if (generators[selectedGeneratorType]) {
+                        currentGenerators[selectedGeneratorType] = generators[selectedGeneratorType];
+                    } else if (generators[key]) {
+                        currentGenerators[key] = generators[key];
+                    } else {
+                        currentGenerators[selectedGeneratorType] = `""`;
+                    }
+                }
+            });
+
+            const config = {
+                url: document.getElementById('url').value,
+                method: document.getElementById('method').value,
+                fields: fields,
+                generators: currentGenerators
+            };
+
+            document.getElementById('outputJson').textContent = JSON.stringify(config, null, 2);
+            document.getElementById('outputPy').textContent = convertToPython(config);
+        }
+
+        /**
+         * Mengkonversi objek konfigurasi ke format Python-ready.
+         * @param {object} config - Objek konfigurasi.
+         * @returns {string} - String konfigurasi dalam format Python.
+         */
+        function convertToPython(config) {
+            let generatorLambdas = Object.entries(config.generators)
+                .map(([k, v]) => `          "${k}": lambda item: ${v}`)
+                .join(",\n");
+
+            return `config = {
+    "url": "${config.url}",
+    "method": "${config.method}",
+    "fields": ${JSON.stringify(config.fields, null, 4).replace(/\n/g, '\n    ')},
+    "generators": {
+${generatorLambdas}
+    }
+}`;
+        }
+
+        /**
+         * Menyalin teks dari elemen ke clipboard.
+         * @param {string} elementId - ID dari elemen yang isinya akan disalin.
+         */
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            const textToCopy = element.textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                document.execCommand('copy');
+                // Tampilkan pesan "Disalin!"
+                const copyMessageId = elementId === 'outputJson' ? 'jsonCopyMessage' : 'pyCopyMessage';
+                const messageElement = document.getElementById(copyMessageId);
+                messageElement.classList.add('show');
+                setTimeout(() => {
+                    messageElement.classList.remove('show');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                // Menampilkan notifikasi error yang ramah
+                alert('Gagal menyalin. Silakan coba lagi.');
+            }
+
+            document.body.removeChild(textarea);
+        }
+
+        /**
+         * Fungsi untuk memanggil Cloudflare Workers dan menyarankan field dengan GenAI.
+         */
+        async function suggestFieldsWithGenAI() {
+            const dataDescription = document.getElementById('dataDescription').value.trim();
+            const loadingContainer = document.getElementById('loadingContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const suggestButton = document.querySelector('button[onclick="suggestFieldsWithGenAI()"]');
+
+            if (!dataDescription) {
+                errorMessage.textContent = "Mohon masukkan deskripsi data terlebih dahulu.";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            loadingContainer.style.display = 'flex';
+            errorMessage.style.display = 'none';
+            suggestButton.disabled = true;
+
+            const prompt = `Saya sedang membuat sistem untuk ${dataDescription}. Berdasarkan deskripsi ini, sarankan daftar field yang relevan dan tipe generator yang sesuai untuk setiap field. Gunakan tipe generator yang sudah ada (email, password, login, playid, phone, level, rank, userIGN, name, age) jika cocok. Jika tidak ada yang cocok, buat tipe generator baru yang deskriptif (contoh: 'game_score', 'last_played_date'). Format respons dalam JSON sebagai array objek, di mana setiap objek memiliki 'fieldName' (string) dan 'generatorType' (string).`;
+            const payload = { prompt: prompt }; // Worker kita hanya butuh prompt sederhana
+
+            let retries = 0;
+            const maxRetries = 5;
+            const initialDelay = 1000;
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429 && retries < maxRetries - 1) {
+                            const delay = initialDelay * Math.pow(2, retries);
+                            await new Promise(res => setTimeout(res, delay));
+                            retries++;
+                            continue;
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const jsonText = result.candidates[0].content.parts[0].text;
+                        const suggestedFields = JSON.parse(jsonText);
+
+                        document.getElementById('fields').innerHTML = '';
+
+                        suggestedFields.forEach(field => {
+                            if (!generators[field.generatorType]) {
+                                generators[field.generatorType] = `item['${field.fieldName}']`;
+                            }
+                            addField(field.fieldName, field.generatorType);
+                        });
+                        break;
+                    } else {
+                        throw new Error("Struktur respons GenAI tidak terduga atau konten hilang.");
+                    }
+                } catch (error) {
+                    console.error("Error calling Cloudflare Worker:", error);
+                    errorMessage.textContent = `Gagal mendapatkan saran dari GenAI: ${error.message}.`;
+                    errorMessage.style.display = 'block';
+                    if (retries < maxRetries -  1) {
+                        const delay = initialDelay * Math.pow(2, retries);
+                        await new Promise(res => setTimeout(res, delay));
+                        retries++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            loadingContainer.style.display = 'none';
+            suggestButton.disabled = false;
+        }
+
+        // Panggil addField dengan satu field awal saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            addField('email_field', 'email');
+        });
+    </script>
+</body>
+</html>
