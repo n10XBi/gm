@@ -1,6 +1,5 @@
 export default {
   async fetch(request, env) {
-    // CORS
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
@@ -17,33 +16,30 @@ export default {
     }
 
     try {
-      const { prompt } = await request.json();
-      if (!prompt) {
-        return new Response("Prompt is required", { status: 400 });
+      // Ambil semua data dari front-end, termasuk history dan gambar
+      const { history, prompt, imageData } = await request.json();
+      
+      const parts = [{ text: prompt }];
+
+      // Kalau ada gambar, tambahkan ke parts
+      if (imageData) {
+        parts.unshift({
+          inlineData: {
+            mimeType: imageData.mimeType,
+            data: imageData.data,
+          }
+        });
       }
 
+      const contents = history ? [...history, { role: "user", parts }] : [{ role: "user", parts }];
+      
       const payload = {
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "ARRAY",
-            items: {
-              type: "OBJECT",
-              properties: {
-                fieldName: { type: "STRING" },
-                generatorType: { type: "STRING" },
-              },
-              propertyOrdering: ["fieldName", "generatorType"],
-            },
-          },
-        },
+        contents: contents,
       };
 
       const GEMINI_API_KEY = env.GEMINI_API_KEY;
-
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -65,4 +61,4 @@ export default {
       return new Response("Internal Server Error: " + err.message, { status: 500 });
     }
   },
-};
+};};
